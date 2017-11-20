@@ -1,0 +1,190 @@
+#AUTO
+XQ #THREADB,1
+XQ #THREADC,2
+XQ #THREADD,3
+XQ #THREADE,4
+XQ #THREADF,5
+XQ #THREADG,6
+XQ #THREADH,7
+#THREADA
+  'Control loop enable flag
+  cl_on = 0;
+  'Save abosolute pos
+  homeVel = 5000;
+'
+  home_A = 4775110;
+  DCA=133120;
+  ACA=133120;
+  BLA=-1000000000;
+  FLA=1000000000;
+  SH A;
+  DPA=(_TPA-home_A)*130; '130 = 102400(steps to 1 rev/790 counts in rev)
+  vmax_a=30000;
+  sp_a=(_TPA-home_A);
+  kp_a=10;
+  deadb_a=0.0035;
+'
+  home_B = 29360560; 
+  DCB=133120;
+  ACB=133120;
+  BLB=-1000000000;
+  FLB=1000000000;
+  SH B
+  DPB=(_TPB-home_B)*130; '130 = 102400/790
+  vmax_b=30000;
+  sp_b=(_TPB-home_B);
+  kp_b=10;
+  deadb_b=0.0035;
+'
+  home_C = 28153991;
+  DCC=133120;
+  ACC=133120;
+  BLC=-1000000000;
+  FLC=1000000000;
+  SH C
+  DPB=(_TPC-home_C)*130; '130 = 102400/790
+  vmax_c=30000;
+  sp_c=(_TPC-home_C);
+  kp_c=10;
+  deadb_c=0.0035;
+'
+  home_D = 3233026;
+  DCD=133120;
+  ACD=133120;
+  BLD=-1000000000;
+  FLD=1000000000;
+  SH D
+  DPD=(_TPD-home_D)*130; '130 = 102400/790
+  vmax_d=30000;
+  sp_d=(_TPD-home_D);
+  kp_d=10;
+  deadb_d=0.0035;
+
+  home_E = 26638507;
+  DCE=133120;
+  ACE=133120;
+  BLE=-1000000000;
+  FLE=1000000000;
+  SH E
+  DPE=(_TPE-home_E)*130; '130 = 102400/790
+  vmax_e=20000;
+  sp_e=(_TPE-home_E);
+  kp_e=2;
+  deadb_e=0.0035;
+
+  home_G = 19747112;
+  DCG=133120;
+  ACG=133120;
+  BLG=-1000000000;
+  FLG=1000000000;
+  SH G
+  DPG=(_TPG-home_G)*130; '130 = 102400/790
+  vmax_g=30000;
+  sp_g=(_TPG-home_G);
+  kp_g=10;
+  deadb_g=0.0035;
+
+  home_H = 22386793;
+  DCH=133120;
+  ACH=133120;
+  BLH=-1000000000;
+  FLH=1000000000;
+  SH H
+  DPH=(_TPH-home_H)*130; '130 = 102400/790
+  vmax_h=30000;
+  sp_h=(_TPH-home_H);
+  kp_h=10;
+  deadb_h=0.0035;
+
+'
+#THREADB
+IF (cl_on = 1)
+'loop A
+enc_pA = _TPA - home_A;
+error_a = sp_a - enc_pA;
+cont_a = error_a*(kp_a);
+max_cntA = 308;
+cont_a = cont_a/(max_cntA);
+IF (@ABS[cont_a] > 1)
+  cont_a = 1*(error_a/@ABS[error_a]);
+ENDIF
+vel_a = cont_a*vmax_a;
+IF (@ABS[vel_a] > (deadb_a*vmax_a))
+  JGA=vel_a;
+  BGA;
+ELSE
+  STA;
+ENDIF
+'loop B
+enc_pB = _TPB - home_B
+error_b = sp_b - enc_pB
+cont_b = error_b*(kp_b)
+max_cntB = 308
+cont_b = cont_b/(max_cntB)
+IF (@ABS[cont_b] > 1)
+  cont_b = 1*(error_b/@ABS[error_b])
+ENDIF
+vel_b = cont_b*vmax_b
+IF (@ABS[vel_b] > (deadb_b*vmax_b))
+  JGB=vel_b
+  BGB
+ELSE
+  STB
+ENDIF
+'loop C
+enc_pC = _TPC - home_C
+error_c = sp_c - enc_pC
+cont_c = error_c*(kp_c)
+max_cntC = 308
+cont_c = cont_c/(max_cntC)
+IF (@ABS[cont_c] > 1)
+  cont_c = 1*(error_c/@ABS[error_c])
+ENDIF
+vel_c = cont_c*vmax_c
+IF (@ABS[vel_c] > (deadb_c*vmax_c))
+  JGC=vel_c
+  BGC
+ELSE
+  STC
+ENDIF
+ENDIF
+ELSE
+"closed loop off"
+ENDIF
+JP #THREADB
+#THREADC
+JP #THREADC
+#THREADD
+JP #THREADD
+#THREADE
+JP #THREADE
+#THREADF
+JP #THREADF
+#THREADG
+JP #THREADG
+#THREADH
+JP #THREADH
+#CMDERR
+errstr=_ED;errcde=_TC;cmderr=cmderr+1
+EN
+#TCPERR
+tcpcde=_TC;tcperr=tcperr+1
+RE
+#LIMSWI
+IF (((_SCA=2) | (_SCA=3)) & (_BGA=1))
+DCA=limdcA;VDS=limdcA;VDT=limdcA;ENDIF
+IF (((_SCB=2) | (_SCB=3)) & (_BGB=1))
+DCB=limdcB;VDS=limdcB;VDT=limdcB;ENDIF
+IF (((_SCC=2) | (_SCC=3)) & (_BGC=1))
+DCC=limdcC;VDS=limdcC;VDT=limdcC;ENDIF
+IF (((_SCD=2) | (_SCD=3)) & (_BGD=1))
+DCD=limdcD;VDS=limdcD;VDT=limdcD;ENDIF
+IF (((_SCE=2) | (_SCE=3)) & (_BGE=1))
+DCE=limdcE;VDS=limdcE;VDT=limdcE;ENDIF
+IF (((_SCF=2) | (_SCF=3)) & (_BGF=1))
+DCF=limdcF;VDS=limdcF;VDT=limdcF;ENDIF
+IF (((_SCG=2) | (_SCG=3)) & (_BGG=1))
+DCG=limdcG;VDS=limdcG;VDT=limdcG;ENDIF
+IF (((_SCH=2) | (_SCH=3)) & (_BGH=1))
+DCH=limdcH;VDS=limdcH;VDT=limdcH;ENDIF
+RE 1
